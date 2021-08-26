@@ -1,0 +1,56 @@
+﻿<Window x:Class="DocGenTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DocGenTool"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0"  Margin="5" Orientation="Vertical">
+            <StackPanel  Orientation="Horizontal">
+                <Label>Выберите файл шаблона документа:</Label>
+            </StackPanel>
+            <StackPanel   Orientation="Horizontal">
+                <Label>Выберите файл метаданных:</Label>
+            </StackPanel>
+            <StackPanel   Orientation="Horizontal">
+                <Label>Выберите файл ответов:</Label>
+            </StackPanel>
+            
+            <StackPanel Margin="5,20,5,5" Orientation="Horizontal">
+                <Button Content="Сгенерировать документ" Command="{Binding GenerateDocCommand}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Margin="5" Orientation="Vertical">
+            <StackPanel  Orientation="Horizontal">
+                <Button Content="Обзор" Width="100" Command="{Binding OpenDocTemplateCommand}"/>
+            </StackPanel>
+            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                <Button Content="Обзор" Width="100" Command="{Binding OpenDocMetadataCommand}"/>
+            </StackPanel>
+            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                    <Button Content="Обзор" Width="100" Command="{Binding OpenDocAnswersCommand}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Margin="5" Orientation="Vertical">
+            <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                <Label Content="{Binding DocTemplatePath}"/>
+            </StackPanel>
+            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                <Label Content="{Binding DocMetadataPath}"/>
+            </StackPanel>
+            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                <Label Content="{Binding DocAnswersPath}"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

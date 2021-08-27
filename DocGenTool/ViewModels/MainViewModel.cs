@@ -34,11 +34,13 @@ namespace DocGenTool.ViewModels
         public IAsyncCommand OpenDocMetadataCommand { get; set; }
         public IAsyncCommand OpenDocAnswersCommand { get; set; }
         public IAsyncCommand GenerateDocCommand { get; set; }
+
         readonly IOService _ioService;
 
         public MainViewModel(IOService ioService)
         {
             _ioService = ioService;
+
             OpenDocTemplateCommand = new AsyncCommand(() => OpenDoc(DocType.Template));
             OpenDocMetadataCommand = new AsyncCommand(() => OpenDoc(DocType.Metadata));
             OpenDocAnswersCommand = new AsyncCommand(() => OpenDoc(DocType.Answers));
@@ -50,13 +52,13 @@ namespace DocGenTool.ViewModels
             switch(docType)
             {
                 case DocType.Template:
-                    DocTemplatePath = _ioService.Open();
+                    DocTemplatePath = _ioService.Open(docType);
                     break;
                 case DocType.Metadata:
-                    DocMetadataPath = _ioService.Open();
+                    DocMetadataPath = _ioService.Open(docType);
                     break;
                 case DocType.Answers:
-                    DocAnswersPath = _ioService.Open();
+                    DocAnswersPath = _ioService.Open(docType);
                     break;
             };
             await Task.Delay(1000);

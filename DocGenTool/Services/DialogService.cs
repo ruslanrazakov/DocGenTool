@@ -1,19 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32;
-using System.Windows;
+using DocBuilder.Core;
 
 namespace DocGenTool.Services
 {
     class DialogService : IOService
     {
-        public string Open()
+        public string Open(DocType doctype)
         {
             OpenFileDialog fileDialog = new();
-            fileDialog.Filter = "doc files (*.doc;*.docx;*.odt)|*.doc;*docx;*.odt";
+            switch (doctype)
+            {
+                case DocType.Template:
+                    fileDialog.Filter = "doc files (*.doc;*.docx;*.odt)|*.doc;*docx;*.odt";
+                    break;
+                case DocType.Answers:
+                case DocType.Metadata:
+                    fileDialog.Filter = "JSON files (*.json;*.txt;)|*.json;*.txt;";
+                    break;
+            };
             return (bool)fileDialog.ShowDialog() ? fileDialog.FileName : String.Empty;
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace DocBuilder.Core.Interfaces
 {
     interface IParagraphBuilder
     {
-        string ReplaceWithTemplateAndMetadata(string docTemplate, string docMetadata);
+        List<OpenXmlElement> Build(string docTemplate, string docMetadata);
     }
 }

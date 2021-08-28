@@ -43,36 +43,17 @@ namespace DocBuilder.Core
 
         void DeleteAllComments(WordprocessingDocument package)
         {
-            // Delete CommentRangeStart for each
-            // deleted comment in the main document.
             List<CommentRangeStart> commentRangeStartToDelete =
                 package.MainDocumentPart.Document.Descendants<CommentRangeStart>().ToList();
-            foreach (CommentRangeStart c in commentRangeStartToDelete)
-            {
-                c.Remove();
-            }
+            commentRangeStartToDelete.ForEach(c => c.Remove());
 
-            // Delete CommentRangeEnd for each deleted comment in the main document.
             List<CommentRangeEnd> commentRangeEndToDelete =
                 package.MainDocumentPart.Document.Descendants<CommentRangeEnd>().ToList();
-            foreach (CommentRangeEnd c in commentRangeEndToDelete)
-            {
-                c.Remove();
-            }
+            commentRangeEndToDelete.ForEach(c => c.Remove());
 
-            // Delete CommentReference for each deleted comment in the main document.
-            List<CommentReference> commentRangeReferenceToDelete = package.MainDocumentPart.Document.Descendants<CommentReference>().ToList();
-            foreach (CommentReference c in commentRangeReferenceToDelete)
-            {
-                c.Remove();
-            }
+            List<CommentReference> commentRangeReferenceToDelete = 
+                package.MainDocumentPart.Document.Descendants<CommentReference>().ToList();
+            commentRangeReferenceToDelete.ForEach(c => c.Remove());
         }
-    }
-
-    public class BuilderOptions
-    {
-        public string DocTemplatePath { get; set; }
-        public string DocMetadataPath { get; set; }
-        public string DocAnswersPath { get; set; }
     }
 }

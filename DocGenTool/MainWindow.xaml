@@ -12,45 +12,45 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Column="0"  Margin="5" Orientation="Vertical">
-            <StackPanel  Orientation="Horizontal">
-                <Label>Выберите файл шаблона документа:</Label>
-            </StackPanel>
-            <StackPanel   Orientation="Horizontal">
-                <Label>Выберите файл метаданных:</Label>
-            </StackPanel>
-            <StackPanel   Orientation="Horizontal">
-                <Label>Выберите файл ответов:</Label>
-            </StackPanel>
-            
-            <StackPanel Margin="5,20,5,5" Orientation="Horizontal">
-                <Button Content="Сгенерировать документ" Command="{Binding GenerateDocCommand}"/>
-            </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+            <Label>Выберите файл шаблона документа:</Label>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="0"  Orientation="Horizontal">
+            <Label>Выберите файл метаданных:</Label>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="0"  Orientation="Horizontal">
+            <Label>Выберите файл ответов:</Label>
         </StackPanel>
 
-        <StackPanel Grid.Column="1" Margin="5" Orientation="Vertical">
-            <StackPanel  Orientation="Horizontal">
-                <Button Content="Обзор" Width="100" Command="{Binding OpenDocTemplateCommand}"/>
-            </StackPanel>
-            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                <Button Content="Обзор" Width="100" Command="{Binding OpenDocMetadataCommand}"/>
-            </StackPanel>
-            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                    <Button Content="Обзор" Width="100" Command="{Binding OpenDocAnswersCommand}"/>
-            </StackPanel>
+        <StackPanel Grid.Row="3" Margin="5,10,5,5" Orientation="Horizontal">
+            <Button Content="Сгенерировать документ" Command="{Binding GenerateDocCommand}"/>
         </StackPanel>
 
-        <StackPanel Grid.Column="2" Margin="5" Orientation="Vertical">
-            <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
-                <Label Content="{Binding DocTemplatePath}"/>
-            </StackPanel>
-            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
-                <Label Content="{Binding DocMetadataPath}"/>
-            </StackPanel>
-            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
-                <Label Content="{Binding DocAnswersPath}"/>
-            </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="5" Orientation="Horizontal">
+            <Button Content="Обзор" Width="100" Command="{Binding OpenDocTemplateCommand}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1"  Margin="5" Orientation="Horizontal">
+            <Button Content="Обзор" Width="100" Command="{Binding OpenDocMetadataCommand}"/>
+        </StackPanel>
+        <StackPanel  Grid.Row="2" Grid.Column="1" Margin="5" Orientation="Horizontal">
+            <Button Content="Обзор" Width="100" Command="{Binding OpenDocAnswersCommand}"/>
+        </StackPanel>
+
+        <StackPanel  Grid.Row="0" Grid.Column="2"  Margin="0,5,0,0" Orientation="Horizontal">
+            <Label Content="{Binding DocTemplatePath}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,5,0,0" Orientation="Horizontal">
+            <Label Content="{Binding DocMetadataPath}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,5,0,0" Orientation="Horizontal">
+            <Label Content="{Binding DocAnswersPath}"/>
         </StackPanel>
     </Grid>
 </Window>

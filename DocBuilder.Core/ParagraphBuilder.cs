@@ -33,7 +33,6 @@ namespace DocBuilder.Core
         public List<OpenXmlElement> GetParagraphInCommentSection(string fileName, string commentInnerText)
         {
             List<OpenXmlElement> resultParagraphs = new List<OpenXmlElement>();
-
             using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fileName, true))
             {
                 MainDocumentPart mainPart = wordDoc.MainDocumentPart;
@@ -42,33 +41,38 @@ namespace DocBuilder.Core
                                                                             .Where(c=>c.InnerText == commentInnerText);
                 CommentRangeStart commentStart;
                 CommentRangeEnd commentEnd;
+                var paragraphs = document.Body.Descendants<Paragraph>();
+
                 foreach (Comment comment in comments)
                 {
                     commentStart = document.MainDocumentPart.Document.Descendants<CommentRangeStart>().FirstOrDefault(c => c.Id == comment.Id);
                     commentEnd = document.MainDocumentPart.Document.Descendants<CommentRangeEnd>().FirstOrDefault(c => c.Id == comment.Id);
-                    var paragraphs = document.Body.Descendants<Paragraph>();
-
-                    bool paragraphIsParsing = false;
-                    foreach (var paragraph in paragraphs)
-                    {
-                        if (paragraph.Contains(commentStart))
-                        {
-                            paragraphIsParsing = true;
-                        }
-
-                        if (paragraphIsParsing)
-                        {
-                            resultParagraphs.Add(paragraph);
-                        }
-
-                        if (paragraphIsParsing && paragraph.Contains(commentEnd))
-                        {
-                            paragraphIsParsing = false;
-                            break;
-                        }
-                    }
+                    resultParagraphs = InspectCommentSectionForParagraphs(paragraphs, commentStart, commentEnd);
                 }
             };
+            return resultParagraphs;
+        }
+
+        private List<OpenXmlElement> InspectCommentSectionForParagraphs(IEnumerable<Paragraph> paragraphs, CommentRangeStart commentStart,
+                                                                                                           CommentRangeEnd commentEnd)
+        {
+            bool paragraphIsParsing = false;
+            var resultParagraphs = new List<OpenXmlElement>();
+
+            foreach (var paragraph in paragraphs)
+            {
+                if (paragraph.Contains(commentStart))
+                    paragraphIsParsing = true;
+
+                if (paragraphIsParsing)
+                    resultParagraphs.Add(paragraph);
+
+                if (paragraphIsParsing && paragraph.Contains(commentEnd))
+                {
+                    paragraphIsParsing = false;
+                    break;
+                }
+            }
             return resultParagraphs;
         }
     }

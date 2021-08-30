@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocGenTool.MVVM
+namespace DocBuilder.Client.MVVM
 {
     public static class TaskUtilities
     {
@@ -21,7 +21,6 @@ namespace DocGenTool.MVVM
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex.ToString());
-                //здесь можно также вызывать провайдер логгирования и т.д.
                 handler?.HandleError(ex);
             }
         }

@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace DocGenTool.MVVM
+namespace DocBuilder.Client.MVVM
 {
 	/// <summary>
 	/// Implements INotifyPropertyChanged interface for property binding in viewmodels

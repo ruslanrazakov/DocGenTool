@@ -15,7 +15,7 @@ namespace DocBuilder.Core
         {
             builderOptions = options;
         }
-
+        
         public void BuildAndSaveTo(string path)
         {
             IParagraphBuilder paragraphBuilder = new ParagraphBuilder();

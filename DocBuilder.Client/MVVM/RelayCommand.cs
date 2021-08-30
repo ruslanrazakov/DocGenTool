@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace DocGenTool.MVVM
+namespace DocBuilder.Client.MVVM
 {
     /// <summary>
     /// Synchronous implementation of relay command

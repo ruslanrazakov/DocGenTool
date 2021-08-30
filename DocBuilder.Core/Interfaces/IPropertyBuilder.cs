@@ -8,5 +8,6 @@ namespace DocBuilder.Core.Interfaces
 {
     interface IPropertyBuilder
     {
+        public void ReplaceProperties(string docTemplate, string docMetadata);
     }
 }

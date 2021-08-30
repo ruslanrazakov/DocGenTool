@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using DocBuilder.Core;
 
-namespace DocGenTool.Services
+namespace DocBuilder.Client.Services
 {
     class DialogService : IOService
     {

@@ -1,5 +1,6 @@
-﻿using DocGenTool.Services;
-using DocGenTool.ViewModels;
+﻿
+using DocBuilder.Client.Services;
+using DocBuilder.Client.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace DocGenTool
+namespace DocBuilder.Client
 {
     /// <summary>
     /// Interaction logic for App.xaml

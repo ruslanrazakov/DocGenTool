@@ -1,14 +1,10 @@
-﻿using DocGenTool.MVVM;
-using DocGenTool.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using DocBuilder.Client.MVVM;
+using DocBuilder.Client.Services;
 using DocBuilder.Core;
 
-namespace DocGenTool.ViewModels
+namespace DocBuilder.Client.ViewModels
 {
     class MainViewModel : ViewModelBase
     {
@@ -30,6 +26,7 @@ namespace DocGenTool.ViewModels
             get => _docAnswersPath;
             set => SetProperty(ref _docAnswersPath, value);
         }
+
         public IAsyncCommand OpenDocTemplateCommand { get; set; }
         public IAsyncCommand OpenDocMetadataCommand { get; set; }
         public IAsyncCommand OpenDocAnswersCommand { get; set; }
@@ -61,19 +58,23 @@ namespace DocGenTool.ViewModels
                     DocAnswersPath = _ioService.Open(docType);
                     break;
             };
-            await Task.Delay(1000);
+            await Task.Delay(10);
         }
 
         private async Task GenerateDoc()
         {
-            Builder docBuilder = new Builder(new BuilderOptions()
+            if (!String.IsNullOrWhiteSpace(DocAnswersPath) &&
+                !String.IsNullOrWhiteSpace(DocTemplatePath))
             {
-                DocTemplatePath = this.DocTemplatePath,
-                DocMetadataPath = this.DocMetadataPath,
-                DocAnswersPath = this.DocAnswersPath
-            });
-            docBuilder.BuildAndSaveTo(AppDomain.CurrentDomain.BaseDirectory + "OutputDoc.docx");
-            await Task.Delay(1000);
+                Builder docBuilder = new Builder(new BuilderOptions()
+                {
+                    DocTemplatePath = this.DocTemplatePath,
+                    DocMetadataPath = this.DocMetadataPath,
+                    DocAnswersPath = this.DocAnswersPath
+                });
+                docBuilder.BuildAndSaveTo(AppDomain.CurrentDomain.BaseDirectory + "OutputDoc.docx");
+            }
+            await Task.Delay(10);
         }
     }
 }

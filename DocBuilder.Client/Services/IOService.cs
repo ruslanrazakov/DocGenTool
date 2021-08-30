@@ -1,7 +1,7 @@
 ﻿using System;
 using DocBuilder.Core;
 
-namespace DocGenTool.Services
+namespace DocBuilder.Client.Services
 {
     interface IOService
     {

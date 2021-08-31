@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using DocBuilder.Client.MVVM;
 using DocBuilder.Client.Services;
@@ -8,11 +10,11 @@ namespace DocBuilder.Client.ViewModels
 {
     class MainViewModel : ViewModelBase
     {
-        string _docTemplatePath;
-        public string DocTemplatePath
+        ObservableCollection<string> _docPackageTemplatePaths;
+        public ObservableCollection<string> DocPackageTemplatePaths
         {
-            get => _docTemplatePath;
-            set => SetProperty(ref _docTemplatePath, value);
+            get => _docPackageTemplatePaths;
+            set => SetProperty(ref _docPackageTemplatePaths, value);
         }
         string _docMetadataPath;
         public string DocMetadataPath
@@ -38,6 +40,7 @@ namespace DocBuilder.Client.ViewModels
         {
             _ioService = ioService;
 
+            DocPackageTemplatePaths = new();
             OpenDocTemplateCommand = new AsyncCommand(() => OpenDoc(DocType.Template));
             OpenDocMetadataCommand = new AsyncCommand(() => OpenDoc(DocType.Metadata));
             OpenDocAnswersCommand = new AsyncCommand(() => OpenDoc(DocType.Answers));
@@ -49,7 +52,7 @@ namespace DocBuilder.Client.ViewModels
             switch(docType)
             {
                 case DocType.Template:
-                    DocTemplatePath = _ioService.Open(docType);
+                    DocPackageTemplatePaths.AddRange(_ioService.OpenMultiple());
                     break;
                 case DocType.Metadata:
                     DocMetadataPath = _ioService.Open(docType);
@@ -63,16 +66,16 @@ namespace DocBuilder.Client.ViewModels
 
         private async Task GenerateDoc()
         {
-            if (!String.IsNullOrWhiteSpace(DocAnswersPath) &&
-                !String.IsNullOrWhiteSpace(DocTemplatePath))
+            if (!String.IsNullOrWhiteSpace(DocAnswersPath) && DocPackageTemplatePaths.Any())
             {
                 Builder docBuilder = new Builder(new BuilderOptions()
                 {
-                    DocTemplatePath = this.DocTemplatePath,
+                    DocPackageTemplatePaths = this.DocPackageTemplatePaths.ToList(),
                     DocMetadataPath = this.DocMetadataPath,
                     DocAnswersPath = this.DocAnswersPath
                 });
-                docBuilder.BuildAndSaveTo(AppDomain.CurrentDomain.BaseDirectory + "OutputDoc.docx");
+
+                docBuilder.BuildAndSave();
             }
             await Task.Delay(10);
         }

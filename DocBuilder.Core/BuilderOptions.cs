@@ -8,7 +8,7 @@ namespace DocBuilder.Core
 {
     public class BuilderOptions
     {
-        public string DocTemplatePath { get; set; }
+        public List<string> DocPackageTemplatePaths { get; set; }
         public string DocMetadataPath { get; set; }
         public string DocAnswersPath { get; set; }
     }

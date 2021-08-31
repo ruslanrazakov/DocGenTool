@@ -1,59 +1,47 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DocBuilder.Core.Interfaces;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
+using System.IO;
+using System.Text.Json;
+using DocBuilder.Core.Enitites;
+using DocBuilder.Core.Services;
 
 namespace DocBuilder.Core
 {
     public class Builder
     {
         private BuilderOptions builderOptions;
+        private readonly string destinationFolder;
+
         public Builder(BuilderOptions options)
         {
             builderOptions = options;
+            destinationFolder = AppDomain.CurrentDomain.BaseDirectory;
         }
         
-        public void BuildAndSaveTo(string path)
+        public void BuildAndSave()
         {
-            IParagraphBuilder paragraphBuilder = new ParagraphBuilder();
-            var paragraphs = paragraphBuilder.Build(builderOptions.DocTemplatePath, builderOptions.DocAnswersPath);
-            CreateAndSaveDoc(paragraphs, path);
-        }
-
-        private void CreateAndSaveDoc(List<OpenXmlElement> paragraphs, string path)
-        {
-            using (WordprocessingDocument package = WordprocessingDocument.Create(path, WordprocessingDocumentType.Document))
-            { 
-                package.AddMainDocumentPart();
-                package.MainDocumentPart.Document = new Document( new Body());
-
-                foreach(var par in paragraphs)
-                {
-                    //we must Clone() every node in paragraphs, cuz they are parts of source tree yet
-                    //see: https://stackoverflow.com/questions/16320537/cannot-insert-the-openxmlelement-newchild-because-it-is-part-of-a-tree
-                    package.MainDocumentPart.Document.Body.AppendChild(par.CloneNode(deep: true));
-                }
-                DeleteAllComments(package);
-                package.MainDocumentPart.Document.Save();
+            var docPackageAnswers = GetAnswers(builderOptions.DocAnswersPath);
+            IDocPropertyService propertyService = new DocPropertyService(docPackageAnswers);
+           
+            foreach (var filePath in builderOptions.DocPackageTemplatePaths)
+            {
+                var destinationPath = CopyTemplate(filePath, destinationFolder);
+                propertyService.ReplaceGeneralPropsAndSaveTo(destinationPath);
+                propertyService.ReplacePackItemPropsAndSaveTo(destinationPath);
             }
         }
 
-        void DeleteAllComments(WordprocessingDocument package)
+        private string CopyTemplate(string filePath, string destinationFolder)
         {
-            List<CommentRangeStart> commentRangeStartToDelete =
-                package.MainDocumentPart.Document.Descendants<CommentRangeStart>().ToList();
-            commentRangeStartToDelete.ForEach(c => c.Remove());
+            var destinationPath = $"{destinationFolder}{Path.GetFileName(filePath)}";
+            File.Copy(filePath, destinationPath, overwrite: false);
+            return destinationPath;
+        }
 
-            List<CommentRangeEnd> commentRangeEndToDelete =
-                package.MainDocumentPart.Document.Descendants<CommentRangeEnd>().ToList();
-            commentRangeEndToDelete.ForEach(c => c.Remove());
-
-            List<CommentReference> commentRangeReferenceToDelete = 
-                package.MainDocumentPart.Document.Descendants<CommentReference>().ToList();
-            commentRangeReferenceToDelete.ForEach(c => c.Remove());
+        private DocPackageAnswersEntity GetAnswers(string docAnswersPath)
+        {
+            var answersJson = File.ReadAllText(docAnswersPath);
+            var jsonOptions = new JsonSerializerOptions { AllowTrailingCommas = true };
+            return JsonSerializer.Deserialize<DocPackageAnswersEntity>(answersJson, jsonOptions);
         }
     }
 }

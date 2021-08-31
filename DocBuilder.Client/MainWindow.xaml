@@ -19,35 +19,35 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Label>Выберите файл шаблона документа:</Label>
+            <Label>Выберите файлы шаблонов документов:</Label>
         </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="0"  Orientation="Horizontal">
+        <!--<StackPanel Grid.Row="1" Grid.Column="0"  Orientation="Horizontal">
             <Label>Выберите файл метаданных:</Label>
-        </StackPanel>
+        </StackPanel>-->
         <StackPanel Grid.Row="2" Grid.Column="0"  Orientation="Horizontal">
-            <Label>Выберите файл ответов:</Label>
+            <Label>Выберите файл ответов пакета документов:</Label>
         </StackPanel>
 
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="5" Orientation="Vertical">
+            <Button Content="Обзор" Width="100" Command="{Binding OpenDocTemplateCommand}"/>
+        </StackPanel>
+        <!--<StackPanel Grid.Row="1" Grid.Column="1"  Margin="5" Orientation="Horizontal">
+            <Button Content="Обзор" Width="100" Command="{Binding OpenDocMetadataCommand}"/>
+        </StackPanel>-->
+        <StackPanel  Grid.Row="2" Grid.Column="1" Margin="5" Orientation="Horizontal">
+            <Button Content="Обзор" Width="100" Command="{Binding OpenDocAnswersCommand}"/>
+        </StackPanel>
         <StackPanel Grid.Row="3" Margin="5,10,5,5" Orientation="Horizontal">
             <Button Content="Сгенерировать документ" Command="{Binding GenerateDocCommand}"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="0" Grid.Column="1" Margin="5" Orientation="Horizontal">
-            <Button Content="Обзор" Width="100" Command="{Binding OpenDocTemplateCommand}"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="1"  Margin="5" Orientation="Horizontal">
-            <Button Content="Обзор" Width="100" Command="{Binding OpenDocMetadataCommand}"/>
-        </StackPanel>
-        <StackPanel  Grid.Row="2" Grid.Column="1" Margin="5" Orientation="Horizontal">
-            <Button Content="Обзор" Width="100" Command="{Binding OpenDocAnswersCommand}"/>
-        </StackPanel>
-
         <StackPanel  Grid.Row="0" Grid.Column="2"  Margin="0,5,0,0" Orientation="Horizontal">
-            <Label Content="{Binding DocTemplatePath}"/>
+            <ListBox ItemsSource="{Binding DocPackageTemplatePaths}">
+            </ListBox>
         </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,5,0,0" Orientation="Horizontal">
+        <!--<StackPanel Grid.Row="1" Grid.Column="2" Margin="0,5,0,0" Orientation="Horizontal">
             <Label Content="{Binding DocMetadataPath}"/>
-        </StackPanel>
+        </StackPanel>-->
         <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,5,0,0" Orientation="Horizontal">
             <Label Content="{Binding DocAnswersPath}"/>
         </StackPanel>

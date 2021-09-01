@@ -22,33 +22,42 @@ namespace DocBuilder.Core.Services
 
     class DocPropertyService : IDocPropertyService
     {
-        private DocPackageAnswersEntity docAnswers;
+        private readonly DocPackageAnswersEntity docPackageAnswers;
 
-        public DocPropertyService(DocPackageAnswersEntity docAnswers)
+        public DocPropertyService(DocPackageAnswersEntity answers)
         {
-            this.docAnswers = docAnswers;
+            this.docPackageAnswers = answers;
         }
 
-        public void ReplaceGeneralPropsAndSaveTo(string destinationPath)
+        /// <summary>
+        /// Подставляет в документ все поля (value) из generalDocProperties
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void ReplaceGeneralPropsIn(string filePath)
         {
-            var generalDocProps = docAnswers.GeneralDocProperties;
+            var generalDocProps = docPackageAnswers.GeneralDocProperties;
             foreach(var property in generalDocProps)
-                SetCustomProperty(destinationPath, property.Name, property.Value, PropertyTypes.Text);
+                SetCustomProperty(filePath, property.Name, property.Value, PropertyTypes.Text);
         }
 
-        public void ReplacePackItemPropsAndSaveTo(string destinationPath)
+        /// <summary>
+        /// Если есть paсkItem[].DockProperties для данного документа,
+        /// то подставляет в документ все поля (value) из paсkItem[].DockProperties
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void ReplacePackItemPropsIn(string filePath)
         {
-            var fileName = Path.GetFileName(destinationPath);
-            var packItem = docAnswers.PackItems.FirstOrDefault(pi => pi.Name == fileName);
+            var fileName = Path.GetFileName(filePath);
+            var packItem = docPackageAnswers.PackItems.FirstOrDefault(pi => pi.Name == fileName);
             if(packItem is not null)
             {
                 foreach (var property in packItem.DocProperties)
-                    SetCustomProperty(destinationPath, property.Name, property.Value, PropertyTypes.Text);
+                    SetCustomProperty(filePath, property.Name, property.Value, PropertyTypes.Text);
             }
         }
 
         /// <summary>
-        /// Best practice using custom properties with OXML, see:
+        /// Best practice использования кастомных полей с OXML, см. ссылку:
         /// https://docs.microsoft.com/ru-ru/office/open-xml/how-to-set-a-custom-property-in-a-word-processing-document
         /// </summary>
         /// <param name="fileName"></param>
@@ -182,6 +191,5 @@ namespace DocBuilder.Core.Services
             }
             return returnValue;
         }
-
     }
 }

@@ -8,7 +8,17 @@ namespace DocBuilder.Core
 {
     interface IDocPropertyService
     {
-        public void ReplaceGeneralPropsAndSaveTo(string path);
-        public void ReplacePackItemPropsAndSaveTo(string path);
+        /// <summary>
+        /// Подставляет в документ все поля (value) из generalDocProperties
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void ReplaceGeneralPropsIn(string path);
+
+        /// <summary>
+        /// Если есть paсkItem[].DockProperties для данного документа,
+        /// то подставляет в документ все поля (value) из paсkItem[].DockProperties
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void ReplacePackItemPropsIn(string path);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DocBuilder.Core.Enitites;
 using DocBuilder.Core.Services;
 
@@ -10,7 +11,6 @@ namespace DocBuilder.Core
     {
         private BuilderOptions builderOptions;
         private readonly string destinationFolder;
-        private bool overwriteDestinationFiles = true;
 
         public Builder(BuilderOptions options)
         {
@@ -60,7 +60,17 @@ namespace DocBuilder.Core
         private DocPackageAnswersEntity GetAnswers(string docAnswersPath)
         {
             var answersJson = File.ReadAllText(docAnswersPath);
-            var jsonOptions = new JsonSerializerOptions { AllowTrailingCommas = true };
+            var jsonOptions = new JsonSerializerOptions
+            { 
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    //в .NET 5.0 есть только одна JsonNamingPolicy из коробки - CamelCase
+                    //возможно позже стоит реализовать свою, чтобы соблюсти Coding Convensions
+                    //в именах перечисления VariantTypes (файл DocPackageAnswersEntity.cs)
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                }
+            };
             return JsonSerializer.Deserialize<DocPackageAnswersEntity>(answersJson, jsonOptions);
         }
     }

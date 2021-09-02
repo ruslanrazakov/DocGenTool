@@ -31,17 +31,13 @@ namespace DocBuilder.Core.Services
             var fileName = Path.GetFileName(filePath);
             var packItem = docPackageAnswers.PackItems.FirstOrDefault(pi => pi.Name == fileName);
             foreach (var variant in packItem.Variants)
-                GetSubsectionsAndRemoveNeedless(filePath, variant.Id);
+            {
+                SearchAndManageSubsections(filePath, variant);
+            }
+            DeleteComments(filePath);
         }
 
-        /// <summary>
-        /// Создает объекты комментариев, и парсит все параграфы в документе,
-        /// собирая те, что не окружены актуальными нодами commentStart и commentEnd
-        /// и удаляя эти параграфы
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="commentInnerText"></param>
-        private void GetSubsectionsAndRemoveNeedless(string fileName, string commentInnerText)
+        private void SearchAndManageSubsections(string fileName, Variant variant)
         {
             using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fileName, true))
             {
@@ -49,7 +45,7 @@ namespace DocBuilder.Core.Services
                 var document = mainPart.Document;
                 var currentCommentMetadata = (Comment)mainPart.WordprocessingCommentsPart
                                                                .Comments.ChildElements
-                                                               .FirstOrDefault(ccm => ccm.InnerText == commentInnerText);
+                                                               .FirstOrDefault(ccm => ccm.InnerText == variant.Id);
                 var commentStart = document.MainDocumentPart.Document
                                                             .Descendants<CommentRangeStart>()
                                                             .FirstOrDefault(cs => cs.Id == currentCommentMetadata.Id);
@@ -57,109 +53,145 @@ namespace DocBuilder.Core.Services
                                                           .Descendants<CommentRangeEnd>()
                                                           .FirstOrDefault(cs => cs.Id == currentCommentMetadata.Id);
 
-                var elementsToDelete = GetNeedlessParagraphsFromDoc(document, commentStart, commentEnd);
-                foreach (var element in elementsToDelete)
-                {
-                    element.RemoveAllChildren();
-                    element.Remove();
-                }
+                ManageSubsection(document, variant, commentStart, commentEnd);
 
                 wordDoc.Save();
             }
         }
 
-        /// <summary>
-        /// Собирает параграфы, подлежащие удалению в список к удалению.
-        /// Подлежащие удалению параграфы - это параграфы, которые
-        /// находятся внутрии секции комментария, не упомянутого в packItem.Variants[].
-        /// </summary>
-        /// <param name="document"></param>
-        /// <param name="commentStart"></param>
-        /// <param name="commentEnd"></param>
-        /// <returns></returns>
-        private List<OpenXmlElement> GetNeedlessParagraphsFromDoc(Document document, CommentRangeStart commentStart, 
-                                                                                   CommentRangeEnd commentEnd)
+        private void ManageSubsection(Document document, Variant variant, CommentRangeStart commentStart, CommentRangeEnd commentEnd)
         {
-            bool remove = false;
-            var elementsToDelete = new List<OpenXmlElement>();
+            var targetElements = GetTargetSubsection(document, commentStart, commentEnd);
+            int subsectionCopiesAmount = variant.Values.First().CopiesAmountValue;
 
-            foreach (var paragraph in document.Body.Descendants<Paragraph>())
+            var currentElement = targetElements.Last();
+
+            //если запрашивается одна копия подраздела - оставляем как есть, подраздел уже существует
+            //если больше - генерируем subsectionCopiesAmount - 1, т.к. один подраздел уже существует
+            //есди ноль - удаляем все ссылки на собранные ноды в targetElements
+            if (subsectionCopiesAmount > 1)
             {
-                if (ParagraphHasStartComment(paragraph) && CommentIsActual(paragraph, commentStart))
+                foreach (var subsectionNum in Enumerable.Range(0, subsectionCopiesAmount - 1))
+                    foreach (var targetElement in targetElements)
+                    {
+                        if (targetElement is Paragraph)
+                        {
+                            var elementToInsert = targetElement.CloneNode(true);
+                            currentElement.InsertAfterSelf(elementToInsert);
+                            currentElement = currentElement.NextSibling();
+                        }
+                    }
+            }
+            if (subsectionCopiesAmount == 0)
+            {
+                foreach (var needless in targetElements)
                 {
-                    remove = false;
-                    Console.WriteLine("START: Dont remove this section...");
-                }
-                if (ParagraphHasStartComment(paragraph) && !CommentIsActual(paragraph, commentStart))
-                {
-                    remove = true;
-                    Console.WriteLine("START: Removing...");
-                }
-                if (ParagraphHasEndComment(paragraph) && CommentIsActual(paragraph, commentEnd))
-                {
-                    Console.WriteLine("END");
-                    remove = false;
-                }
-                if (ParagraphHasEndComment(paragraph) && !CommentIsActual(paragraph, commentEnd))
-                {
-                    elementsToDelete.Add(paragraph);
-                    Console.WriteLine("END");
-                    remove = false;
-                }
-
-                if (remove)
-                {
-                    elementsToDelete.Add(paragraph);
+                    if (needless is Paragraph)
+                    {
+                        needless.RemoveAllChildren();
+                        needless.Remove();
+                    }
                 }
             }
-            return elementsToDelete;
         }
 
-        /// <summary>
-        /// Определяет, содержит ли параграф данный конкретный коммент
-        /// </summary>
-        /// <param name="paragraph"></param>
-        /// <param name="comment"></param>
-        /// <returns></returns>
-        private bool CommentIsActual(Paragraph paragraph, OpenXmlElement comment)
+        private List<OpenXmlElement> GetTargetSubsection(Document document, CommentRangeStart commentStart, CommentRangeEnd commentEnd)
         {
-            foreach (var element in paragraph)
+            bool isTargetElement = false;
+            var targetElements = new List<OpenXmlElement>();
+            foreach (var element in document.Body.Descendants())
             {
-                if (element.Equals(comment))
-                    return true;
+                if (element.Equals(commentStart) || element.Contains(commentStart))
+                {
+                    isTargetElement = true;
+                }
+
+                if (element.Equals(commentEnd) || element.Contains(commentEnd))
+                {
+                    targetElements.Add(element);
+                    isTargetElement = false;
+                    break;
+                }
+
+                if (isTargetElement)
+                {
+                    targetElements.Add(element);
+                }
             }
-            return false;
+            return targetElements;
         }
 
-        /// <summary>
-        /// Определяет, есть ли в параграфе XML нода commentRangeStart
-        /// </summary>
-        /// <param name="paragraph"></param>
-        /// <param name="commentStart"></param>
-        /// <returns></returns>
-        private bool ParagraphHasStartComment(Paragraph paragraph)
+        // Delete comments by a specific author. Pass an empty string for the 
+        // author to delete all comments, by all authors.
+        public static void DeleteComments(string fileName)
         {
-            foreach (var element in paragraph)
+            // Get an existing Wordprocessing document.
+            using (WordprocessingDocument document =
+                WordprocessingDocument.Open(fileName, true))
             {
-                if (element is CommentRangeStart)
-                    return true;
-            }
-            return false;
-        }
+                // Set commentPart to the document WordprocessingCommentsPart, 
+                // if it exists.
+                WordprocessingCommentsPart commentPart =
+                    document.MainDocumentPart.WordprocessingCommentsPart;
 
-        /// <summary>
-        /// Определяет, есть ли в параграфе XML нода commentRangeEnd
-        /// </summary>
-        /// <param name="paragraph"></param>
-        /// <returns></returns>
-        private bool ParagraphHasEndComment(Paragraph paragraph)
-        {
-            foreach (var element in paragraph)
-            {
-                if (element is CommentRangeEnd)
-                    return true;
+                // If no WordprocessingCommentsPart exists, there can be no 
+                // comments. Stop execution and return from the method.
+                if (commentPart == null)
+                {
+                    return;
+                }
+
+                // Create a list of comments by the specified author, or
+                // if the author name is empty, all authors.
+                List<Comment> commentsToDelete =
+                    commentPart.Comments.Elements<Comment>().ToList();
+                commentsToDelete = commentsToDelete.ToList();
+                IEnumerable<string> commentIds =
+                    commentsToDelete.Select(r => r.Id.Value);
+
+                // Delete each comment in commentToDelete from the 
+                // Comments collection.
+                foreach (Comment c in commentsToDelete)
+                {
+                    c.Remove();
+                }
+
+                // Save the comment part change.
+                commentPart.Comments.Save();
+
+                Document doc = document.MainDocumentPart.Document;
+
+                // Delete CommentRangeStart for each
+                // deleted comment in the main document.
+                List<CommentRangeStart> commentRangeStartToDelete =
+                    doc.Descendants<CommentRangeStart>().
+                    Where(c => commentIds.Contains(c.Id.Value)).ToList();
+                foreach (CommentRangeStart c in commentRangeStartToDelete)
+                {
+                    c.Remove();
+                }
+
+                // Delete CommentRangeEnd for each deleted comment in the main document.
+                List<CommentRangeEnd> commentRangeEndToDelete =
+                    doc.Descendants<CommentRangeEnd>().
+                    Where(c => commentIds.Contains(c.Id.Value)).ToList();
+                foreach (CommentRangeEnd c in commentRangeEndToDelete)
+                {
+                    c.Remove();
+                }
+
+                // Delete CommentReference for each deleted comment in the main document.
+                List<CommentReference> commentRangeReferenceToDelete =
+                    doc.Descendants<CommentReference>().
+                    Where(c => commentIds.Contains(c.Id.Value)).ToList();
+                foreach (CommentReference c in commentRangeReferenceToDelete)
+                {
+                    c.Remove();
+                }
+
+                // Save changes back to the MainDocumentPart part.
+                doc.Save();
             }
-            return false;
         }
     }
 }

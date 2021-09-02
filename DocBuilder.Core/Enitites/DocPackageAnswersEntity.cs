@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace DocBuilder.Core.Enitites
         public string Description { get; set; }
 
         [JsonPropertyName("value")]
-        public int CopiesValue { get; set; }
+        public int CopiesAmountValue { get; set; }
     }
 
     public class Variant
@@ -43,7 +44,7 @@ namespace DocBuilder.Core.Enitites
         public string Name { get; set; }
 
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public  VariantType Type { get; set; }
 
         [JsonPropertyName("values")]
         public List<Value> Values { get; set; }
@@ -95,5 +96,15 @@ namespace DocBuilder.Core.Enitites
 
         [JsonPropertyName("packItems")]
         public List<PackItem> PackItems { get; set; }
+    }
+
+    public enum VariantType
+    {
+        single,
+        multiple,
+        none_or_single,
+        none_or_multiple,
+        multiple_Copies,
+        none_or_multiple_copies,
     }
 }
